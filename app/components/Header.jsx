@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 
 const Header = () => {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center max-w-[1350px] mx-auto">
       <div className="flex items-center gap-10">
         <Link href="/">
           <Image src={Logo} width={100} h={100} />
