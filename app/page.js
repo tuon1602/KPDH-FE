@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
 import moment from 'moment';
+import { arrayFn } from 'shochu';
 
 export default function Home() {
   const idZero = data[0].id;
@@ -28,7 +29,7 @@ export default function Home() {
     );
     const data = await response.json();
 
-    setPosts(data.data);
+    setPosts(arrayFn.shuffle(data.data));
   };
 
   useEffect(() => {
@@ -68,12 +69,13 @@ export default function Home() {
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
           {posts.map((item, index) => (
             <Card>
-              <div className="h-[300px] rounded-md relative">
+              <div className="h-[300px] rounded-md overflow-hidden relative">
                 <Image
                   src={`https://fakenewsapi-1-w3888100.deta.app/upload/file/${item.image}`}
                   alt="thumbnail"
                   fill
                   style={{ objectFit: 'cover' }}
+                  className="hover:scale-110 transition"
                 />
                 {/* <img
                   src={`https://fakenewsapi-1-w3888100.deta.app/upload/file/${item.image}`}
@@ -91,7 +93,7 @@ export default function Home() {
               </CardContent>
               <CardFooter>
                 <Link
-                  href={`/news/${item.id}`}
+                  href={`/news/${item._id}`}
                   className="text-md text-gray-500"
                 >
                   View more
