@@ -4,6 +4,10 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from 'next/navigation';
+
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string().required("Please enter a username"),
@@ -13,7 +17,9 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Login = () => {
+  const router = useRouter()
   return (
+    <>
     <div className="w-full h-2/3 flex items-center justify-center">
       <div className="flex justify-center h-[550px] bg-white rounded-xl w-1/3 ">
         <div className="flex flex-col p-5 items-center w-full">
@@ -42,9 +48,30 @@ const Login = () => {
               password: "",
             }}
             validationSchema={SignupSchema}
-            onSubmit={(values) => {
+            onSubmit={ async (values) => {
               // same shape as initial values
-              console.log(values);
+              try {
+                const res = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(values),
+                  }
+                );
+                  const data = await res.json();
+                if (res.status == 200) {
+                  setTimeout(() => {
+                      router.push("/")
+                  },3000)
+                } else {
+                  toast.error("Your Username or password wrong, please try again");
+                }
+              } catch (error) {
+                console.error(error);
+              }
             }}
           >
             {({ errors, touched }) => (
@@ -81,6 +108,8 @@ const Login = () => {
         </div>
       </div>
     </div>
+    <ToastContainer/>
+    </>
   );
 };
 
