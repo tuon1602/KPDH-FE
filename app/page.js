@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import data from "./data/data.json";
 import Link from "next/link";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -15,6 +17,8 @@ export default function Home() {
   const idZero = data[0].id;
   console.log(idZero);
   return (
+    <>
+    <Header/>
     <main className="px-20 mt-10">
       <p className="text-bold text-6xl">News</p>
       <Link
@@ -56,5 +60,7 @@ export default function Home() {
         ))}
       </div>
     </main>
+    <Footer/>
+    </>
   );
 }
