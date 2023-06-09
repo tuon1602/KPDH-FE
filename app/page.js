@@ -15,13 +15,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import moment from 'moment';
 import { arrayFn } from 'shochu';
 
 export default function Home() {
+
   const idZero = data[0].id;
-  console.log(idZero);
   const [posts, setPosts] = useState([]);
+
+
 
   const getData = async () => {
     const response = await fetch(
