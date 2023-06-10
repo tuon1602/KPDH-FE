@@ -15,25 +15,21 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
 import { arrayFn } from 'shochu';
 import { useRouter } from 'next/navigation';
+import { parseImgUrl } from '@/lib/utils';
 
 export default function Home() {
-
   const idZero = data[0].id;
   const [posts, setPosts] = useState([]);
 
-
-
   const getData = async () => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}post`
-    );
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}post`);
     const data = await response.json();
-    console.log(data)
+    console.log(data);
 
     setPosts(arrayFn.shuffle(data.data));
   };
@@ -77,7 +73,7 @@ export default function Home() {
             <Card>
               <div className="h-[300px] rounded-md overflow-hidden relative">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/upload/file/${item.image}`}
+                  src={parseImgUrl(item.image)}
                   alt="thumbnail"
                   fill
                   style={{ objectFit: 'cover' }}

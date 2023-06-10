@@ -1,32 +1,43 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import { parseImgUrl } from '@/lib/utils';
 
-async function getData(newsId) {
-  "use client"
-  let token = "";
-  if (typeof localStorage !== "undefined") {
-    token = localStorage.getItem("token");
-  }
-  if (token != "") {
-    const newsData = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}post/${newsId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return newsData.json();
-  }
-}
+const NewsDetail = () => {
+  const params = useParams();
+  const [postData, setPostData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-const NewsDetail = async () => {
-   const params = useParams()
-  const data = await getData(params.id);
+  async function getData() {
+    'use client';
+    let token = '';
+    if (typeof localStorage !== 'undefined') {
+      token = localStorage.getItem('token');
+    }
+    if (token != '') {
+      setIsLoading(true)
+      const newsData = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}post/${params.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setPostData((await newsData.json()).data);
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  if (isLoading) return <div>isLoading...</div>
+
   return (
     <div className="max-w-[1050px] mx-auto mt-20">
       <Link href="/">
@@ -47,14 +58,14 @@ const NewsDetail = async () => {
       </Link>
       <div className="mt-10">
         <Image
-          src={`${process.env.NEXT_PUBLIC_API_URL}/upload/file/${data.data.image}`}
+          src={parseImgUrl(postData?.image)}
           alt="thumbnail"
           width={1350}
           height={400}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: 'cover' }}
           className="transition bg-red-400"
         />
-        <p className="text-bold text-3xl">{data.data.title}</p>
+        <p className="text-bold text-3xl">{postData?.title}</p>
         <p>WTF</p>
       </div>
     </div>
