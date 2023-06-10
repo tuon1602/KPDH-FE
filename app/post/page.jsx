@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import CreatePost from "../components/CreatePost";
 import { useRouter } from "next/navigation";
+import { parseImgUrl } from "@/lib/utils";
 
 async function getData() {
   "use client";
@@ -45,7 +46,6 @@ const Post = async () => {
           }
         );
         const data = res.json();
-        console.log(data);
         router.refresh();
       }
     }
@@ -76,7 +76,7 @@ const Post = async () => {
                   <TableCell>
                     {" "}
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/upload/file/${item.image}`}
+                      src={parseImgUrl(item.image)}
                       alt="thumbnail"
                       width={150}
                       height={150}

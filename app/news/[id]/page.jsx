@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { parseImgUrl } from '@/lib/utils';
 import moment from 'moment';
+import Loading from '@/components/Loading';
 
 const NewsDetail = () => {
   const params = useParams();
@@ -37,10 +38,10 @@ const NewsDetail = () => {
     getData();
   }, []);
 
-  if (isLoading) return <div>isLoading...</div>;
+  if (isLoading) return <Loading />;
 
   return (
-    <div className="max-w-[1050px] mx-auto my-10">
+    <div className="max-w-[1050px] mx-auto my-10 px-3 md:px-5 lg:px-0">
       <Link href="/">
         <svg
           xmlns="http://www.w3.org/2000/svg"

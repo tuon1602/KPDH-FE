@@ -21,22 +21,29 @@ import moment from 'moment';
 import { arrayFn } from 'shochu';
 import { useRouter } from 'next/navigation';
 import { parseImgUrl } from '@/lib/utils';
+import Loading from '@/components/Loading';
 
 export default function Home() {
   const idZero = data[0].id;
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const getData = async () => {
+    setIsLoading(true);
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}post`);
     const data = await response.json();
     console.log(data);
 
-    setPosts(arrayFn.shuffle(data.data));
+    const shuffleData = arrayFn.shuffle(data.data);
+    setPosts({ top: shuffleData[0], rest: shuffleData.slice(1) });
+    setIsLoading(false);
   };
 
   useEffect(() => {
     getData();
   }, []);
+
+  if (isLoading) return <Loading />;
 
   return (
     <>
@@ -45,14 +52,14 @@ export default function Home() {
         <p className="font-semibold text-6xl">News</p>
         <Link
           href={{
-            pathname: `/news/${idZero}`,
+            pathname: `/news/${posts.top._id}`,
           }}
           className="hidden md:block mt-4"
         >
           <div className=" flex gap-12 items-center">
             <div className="flex-auto w-64 bg-red-500 md:h-[500px] relative rounded-md">
               <Image
-                src={data[0].image}
+                src={parseImgUrl(posts.top.image)}
                 alt="big image"
                 fill
                 style={{ objectFit: 'cover' }}
@@ -60,16 +67,16 @@ export default function Home() {
               />
             </div>
             <div className="flex-auto w-16">
-              <span className="text-gray-600">{data[0].createdAt}</span>
-              <h1 className="text-4xl mt-2 text-bold uppercase">
-                {data[0].title}
+              <span className="text-gray-600">{posts.top.createdAt}</span>
+              <h1 className="text-4xl mt-2 font-semibold uppercase">
+                {posts.top.title}
               </h1>
-              <p className="mt-2 text-gray-500">{data[0].description}</p>
+              <p className="mt-2 text-gray-500">{posts.top.description}</p>
             </div>
           </div>
         </Link>
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
-          {posts.map((item, index) => (
+          {posts.rest.map((item, index) => (
             <Card>
               <div className="h-[300px] rounded-md overflow-hidden relative">
                 <Image
@@ -106,6 +113,7 @@ export default function Home() {
         </div>
       </main>
       <Footer />
+      <ToastContainer/>
     </>
   );
 }
