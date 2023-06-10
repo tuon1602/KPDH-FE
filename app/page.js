@@ -19,6 +19,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import moment from 'moment';
 import { arrayFn } from 'shochu';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
 
@@ -29,9 +30,10 @@ export default function Home() {
 
   const getData = async () => {
     const response = await fetch(
-      'https://fakenewsapi-1-w3888100.deta.app/post'
+      `${process.env.NEXT_PUBLIC_API_URL}post`
     );
     const data = await response.json();
+    console.log(data)
 
     setPosts(arrayFn.shuffle(data.data));
   };
@@ -75,7 +77,7 @@ export default function Home() {
             <Card>
               <div className="h-[300px] rounded-md overflow-hidden relative">
                 <Image
-                  src={`https://fakenewsapi-1-w3888100.deta.app/upload/file/${item.image}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/upload/file/${item.image}`}
                   alt="thumbnail"
                   fill
                   style={{ objectFit: 'cover' }}

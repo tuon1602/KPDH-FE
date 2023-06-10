@@ -12,6 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { redirect,useRouter } from 'next/navigation'
+
 
 const SignupSchema = Yup.object().shape({
   title: Yup.string()
@@ -27,11 +31,13 @@ const SignupSchema = Yup.object().shape({
 });
 
 const CreatePost = () => {
+const router= useRouter()
   const token = localStorage.getItem("token");
   const [image, setImage] = useState("");
+  const [loading,setLoading] = useState(true)
 
   const handleFileChange = async (event) => {
-    const file =await event.target.files[0];
+    const file = await event.target.files[0];
     // if (file) {
     //   const reader = new FileReader();
 
@@ -43,20 +49,21 @@ const CreatePost = () => {
     //   reader.readAsDataURL(file);
     // }
     let formData = new FormData();
-    formData.append("file", image);
+    formData.append("file", file);
+    setLoading(true)
     const uploadImage = await fetch(
-      "https://fakenewsapi-1-w3888100.deta.app/upload",
+      `${process.env.NEXT_PUBLIC_API_URL}upload`,
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       }
     );
     const dataUploadImage = await uploadImage.json();
-    console.log(image)
-    console.log(dataUploadImage);
+    setLoading(false)
+    setImage(dataUploadImage);
   };
   return (
     <div className="flex justify-center mb-10">
@@ -95,7 +102,36 @@ const CreatePost = () => {
                 validationSchema={SignupSchema}
                 onSubmit={async (values) => {
                   // same shape as initial values
-                  console.log(image);
+                  try {
+                    values.image = image.filename;
+                    const data = await fetch(
+                      `${process.env.NEXT_PUBLIC_API_URL}post`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Authorization": `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(values),
+                      }
+                    );
+                    if(data.status===200){
+                        toast.success("Success! Post successful.");
+                        setTimeout(() => {
+                            router.refresh()
+                            
+                        },3000)
+                    }
+                    else{
+                        toast.error("Failed! Post Failed, Please try again later");
+                        setTimeout(() => {
+                            router.refresh()
+                        },3000) 
+                    }
+                  } catch (error) {
+                    console.error(error);
+                  }
+
                   //   const getImage = async () => {
                   //   };
                 }}
@@ -108,6 +144,11 @@ const CreatePost = () => {
                       accept="image/*"
                       onChange={handleFileChange}
                     />
+                    {loading && <h3>Your image will display hehe :D ....</h3>}
+                    {image &&(
+                        <img src={`${process.env.NEXT_PUBLIC_API_URL}upload/file/${image.filename}`}
+                        className="w-[250px] h-[250px]"/>
+                    )}
                     <label>Title</label>
                     <Field
                       name="title"
@@ -137,17 +178,17 @@ const CreatePost = () => {
                     {errors.content && touched.content ? (
                       <div className="text-red-400">{errors.content}</div>
                     ) : null}
-                    <label>Image</label>
 
-                    <Field
+                    {/* <Field
                       name="image"
                       type="text"
                       className="border-2 border-black w-full py-2"
+                      value={image.filename}
                       disabled
                     />
                     {errors.image && touched.image ? (
                       <div className="text-red-400">{errors.image}</div>
-                    ) : null}
+                    ) : null} */}
                     <button
                       type="submit"
                       className="w-full px-10 py-4 bg-blue-300"
@@ -161,6 +202,7 @@ const CreatePost = () => {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+      <ToastContainer/>
     </div>
   );
 };

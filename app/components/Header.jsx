@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -28,18 +28,12 @@ const Header = () => {
   }
 
   const getUserInfo = async () => {
-    if (token) {
-      const response = await fetch(
-        `https://fakenewsapi-1-w3888100.deta.app/user`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          next:{
-            revalidate:10000
-          }
-        }
-      );
+    if (token!="") {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       if (data.code === 1) {
         setUserDetail(data);
@@ -50,7 +44,7 @@ const Header = () => {
           router.push("auth/login");
         }, 5000);
       }
-    } 
+    }
   };
   useEffect(() => {
     getUserInfo();

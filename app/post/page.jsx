@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -14,39 +14,40 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import CreatePost from "../components/CreatePost";
-
-
+import { useRouter } from "next/navigation";
 
 async function getData() {
-  const res = await fetch("https://fakenewsapi-1-w3888100.deta.app/post", {
-    next: {
-      revalidate: 2000,
-    },
+  "use client";
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}post`, {
   });
   return res.json();
 }
 
 const Post = async () => {
-  let token = '';
-  if (typeof localStorage !== 'undefined') {
-    token = localStorage.getItem('token');
+  const router = useRouter();
+  let token = "";
+  if (typeof localStorage !== "undefined") {
+    token = localStorage.getItem("token");
   }
   const data = await getData();
   //   console.log(data.data);
 
   const handleDeletePost = async (postId) => {
-    if (token) {
-      const res = await fetch(
-        `https://fakenewsapi-1-w3888100.deta.app/post/${postId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = res.json();
-      console.log(data);
+    if (window.confirm("Are you sure you want to delete this post")) {
+      if (token) {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}post/${postId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = res.json();
+        console.log(data);
+        router.refresh();
+      }
     }
   };
   return (
@@ -54,7 +55,7 @@ const Post = async () => {
       <div>
         <Header />
         <div className="max-w-[1050px] mx-auto mt-20">
-        <CreatePost/>
+          <CreatePost />
           <Table>
             <TableCaption>A list of posts</TableCaption>
             <TableHeader>
@@ -75,7 +76,7 @@ const Post = async () => {
                   <TableCell>
                     {" "}
                     <Image
-                      src={`https://fakenewsapi-1-w3888100.deta.app/upload/file/${item.image}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/upload/file/${item.image}`}
                       alt="thumbnail"
                       width={150}
                       height={150}
