@@ -103,7 +103,7 @@ export default function Home() {
               <CardFooter>
                 <Link
                   href={`/news/${item._id}`}
-                  className="text-md text-gray-500"
+                  className="text-md text-gray-500 bg-green-400 py-2 px-4 rounded-md"
                 >
                   View more
                 </Link>
