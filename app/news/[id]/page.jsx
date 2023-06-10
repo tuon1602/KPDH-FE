@@ -1,33 +1,34 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { parseImgUrl } from "@/lib/utils";
-import Footer from "@/app/components/Footer";
-import moment from "moment";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import { parseImgUrl } from '@/lib/utils';
+import Footer from '@/app/components/Footer';
+import moment from 'moment';
+import Loading from '@/components/Loading';
 
-var token = "";
-if (typeof localStorage !== "undefined") {
-  token = localStorage.getItem("token");
+var token = '';
+if (typeof localStorage !== 'undefined') {
+  token = localStorage.getItem('token');
 }
 
 const NewsDetail = () => {
   const params = useParams();
   const [postData, setPostData] = useState({});
-  const [realOrFake,setRealOrFake] = useState("")
+  const [realOrFake, setRealOrFake] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   async function getData() {
-    "use client";
-    if (token != "") {
+    'use client';
+    if (token != '') {
       setIsLoading(true);
       const newsData = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}post/${params.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -37,22 +38,22 @@ const NewsDetail = () => {
   }
 
   async function checkContentRealFake() {
-    "use client";
-    if (token != "" && postData.content) {
+    'use client';
+    if (token != '' && postData.content) {
       const newsData = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}post/prediction`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({"content":postData?.content}),
+          body: JSON.stringify({ content: postData?.content }),
         }
       );
       const data = await newsData.json();
-      if(data.code ===1){
-        setRealOrFake(data.data)
+      if (data.code === 1) {
+        setRealOrFake(data.data);
       }
     }
   }
@@ -62,7 +63,7 @@ const NewsDetail = () => {
     checkContentRealFake();
   }, []);
 
-  if (isLoading) return <Loading/>;
+  if (isLoading) return <Loading />;
 
   return (
     <div className="max-w-[1050px] mx-auto mt-20">
@@ -83,10 +84,14 @@ const NewsDetail = () => {
             />
           </svg>
         </Link>
-        {realOrFake ==1 ?(
-          <p className="py-2 px-4 bg-red-400 rounded-xl text-white">This content possibly fake </p>
-        ):(
-          <p className="py-2 px-4 bg-green-400 rounded-xl text-white">This content consitanly real</p>
+        {realOrFake == 1 ? (
+          <p className="py-2 px-4 bg-red-400 rounded-xl text-white">
+            This content possibly fake{' '}
+          </p>
+        ) : (
+          <p className="py-2 px-4 bg-green-400 rounded-xl text-white">
+            This content consitanly real
+          </p>
         )}
       </div>
 
@@ -96,14 +101,14 @@ const NewsDetail = () => {
           alt="thumbnail"
           width={1350}
           height={400}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: 'cover' }}
           className="transition bg-red-400"
         />
         <p className="font-bold uppercase text-3xl">{postData?.title}</p>
         <div>
           <h3 className="font-semibold">Admin,</h3>
           <h3 className="text-sm text-gray-500">
-            {moment(postData?.created_at).format("MMMM DD, YYYY")}
+            {moment(postData?.created_at).format('MMMM DD, YYYY')}
           </h3>
         </div>
 
