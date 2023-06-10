@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { parseImgUrl } from '@/lib/utils';
+import moment from 'moment';
 
 const NewsDetail = () => {
   const params = useParams();
@@ -17,7 +18,7 @@ const NewsDetail = () => {
       token = localStorage.getItem('token');
     }
     if (token != '') {
-      setIsLoading(true)
+      setIsLoading(true);
       const newsData = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}post/${params.id}`,
         {
@@ -28,7 +29,7 @@ const NewsDetail = () => {
         }
       );
       setPostData((await newsData.json()).data);
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -36,10 +37,10 @@ const NewsDetail = () => {
     getData();
   }, []);
 
-  if (isLoading) return <div>isLoading...</div>
+  if (isLoading) return <div>isLoading...</div>;
 
   return (
-    <div className="max-w-[1050px] mx-auto mt-20">
+    <div className="max-w-[1050px] mx-auto my-10">
       <Link href="/">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +57,14 @@ const NewsDetail = () => {
           />
         </svg>
       </Link>
-      <div className="mt-10">
+      <div className="mt-8">
+        <div className="mb-5">
+          <p className="font-semibold">Admin,</p>
+          <p
+            className="text-sm text-neutral-400"
+            children={`${moment(postData.created_at).format('MMMM DD, YYYY')}`}
+          />
+        </div>
         <Image
           src={parseImgUrl(postData?.image)}
           alt="thumbnail"
@@ -65,8 +73,8 @@ const NewsDetail = () => {
           style={{ objectFit: 'cover' }}
           className="transition bg-red-400"
         />
-        <p className="text-bold text-3xl">{postData?.title}</p>
-        <p>WTF</p>
+        <p className="font-bold text-3xl my-5">{postData?.title}</p>
+        <p>{postData?.content}</p>
       </div>
     </div>
   );
