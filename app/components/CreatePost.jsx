@@ -14,8 +14,8 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { redirect,useRouter } from 'next/navigation'
-
+import { redirect, useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SignupSchema = Yup.object().shape({
   title: Yup.string()
@@ -31,10 +31,15 @@ const SignupSchema = Yup.object().shape({
 });
 
 const CreatePost = () => {
-const router= useRouter()
-  const token = localStorage.getItem("token");
+  const router = useRouter();
+  let token = '';
+  if (typeof localStorage !== 'undefined') {
+    token = localStorage.getItem('token');
+  }
   const [image, setImage] = useState("");
-  const [loading,setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
+  const [isChecked, setIsChecked] = useState(false);
+  // const [status,setStatus] = use
 
   const handleFileChange = async (event) => {
     const file = await event.target.files[0];
@@ -50,7 +55,7 @@ const router= useRouter()
     // }
     let formData = new FormData();
     formData.append("file", file);
-    setLoading(true)
+    setLoading(true);
     const uploadImage = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}upload`,
       {
@@ -62,8 +67,13 @@ const router= useRouter()
       }
     );
     const dataUploadImage = await uploadImage.json();
-    setLoading(false)
+    setLoading(false);
     setImage(dataUploadImage);
+  };
+
+  const handleCheckboxChange = (event) => {
+    setIsChecked(event.target.checked);
+    console.log(isChecked);
   };
   return (
     <div className="flex justify-center mb-10">
@@ -109,24 +119,25 @@ const router= useRouter()
                       {
                         method: "POST",
                         headers: {
-                          "Authorization": `Bearer ${token}`,
+                          Authorization: `Bearer ${token}`,
                           "Content-Type": "application/json",
                         },
                         body: JSON.stringify(values),
                       }
                     );
-                    if(data.status===200){
+                    if (data.status === 200) {
+                      setTimeout(() => {
                         toast.success("Success! Post successful.");
-                        setTimeout(() => {
-                            router.refresh()
-                            
-                        },3000)
-                    }
-                    else{
-                        toast.error("Failed! Post Failed, Please try again later");
-                        setTimeout(() => {
-                            router.refresh()
-                        },3000) 
+                      }, 3000);
+                      window.location.reload();
+                    } else {
+                
+                      setTimeout(() => {
+                        toast.error(
+                          "Failed! Post Failed, Please try again later"
+                        );
+                      }, 3000);
+                      window.location.reload();
                     }
                   } catch (error) {
                     console.error(error);
@@ -136,7 +147,7 @@ const router= useRouter()
                   //   };
                 }}
               >
-                {({ errors, touched }) => (
+                {({ errors, touched, values }) => (
                   <Form className="mt-10 flex flex-col gap-3 w-full">
                     <label>Select your image</label>
                     <input
@@ -145,9 +156,11 @@ const router= useRouter()
                       onChange={handleFileChange}
                     />
                     {loading && <h3>Your image will display hehe :D ....</h3>}
-                    {image &&(
-                        <img src={`${process.env.NEXT_PUBLIC_API_URL}upload/file/${image.filename}`}
-                        className="w-[250px] h-[250px]"/>
+                    {image && (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_URL}upload/file/${image.filename}`}
+                        className="w-[250px] h-[250px]"
+                      />
                     )}
                     <label>Title</label>
                     <Field
@@ -178,7 +191,66 @@ const router= useRouter()
                     {errors.content && touched.content ? (
                       <div className="text-red-400">{errors.content}</div>
                     ) : null}
+                      {values.content ? (
+                        <div className=" text-center px-2 py-4 bg-green-400 w-1/2"
+                          onClick={async () => {
+                            const response = await fetch(
+                              `${process.env.NEXT_PUBLIC_API_URL}post/prediction`,
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Authorization": `Bearer ${token}`,
+                                  "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({content:values.content})
+                              }
+                            );
 
+                            const status = await response.json();
+                            if(status.code ===1 && status.data === 1){
+                              toast.info('This content might be fake', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                                });
+                
+                            }
+                            else if (status.code === 1 && status.data ===0){
+                              toast.info('This content is real', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                                });
+                            }
+                            else{
+                              toast.error('We cant defined this content, try again later', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                                });
+                            }
+                          }}
+                        >
+                          Prediction content
+                        </div>
+                      ):(
+                        <div className=" disabled text-center px-2 py-4 bg-green-400 w-1/2 opacity-50">Prediction content</div>
+                      )}
                     {/* <Field
                       name="image"
                       type="text"
@@ -193,7 +265,7 @@ const router= useRouter()
                       type="submit"
                       className="w-full px-10 py-4 bg-blue-300"
                     >
-                      Create
+                      Create post
                     </button>
                   </Form>
                 )}
@@ -202,7 +274,7 @@ const router= useRouter()
           </DialogHeader>
         </DialogContent>
       </Dialog>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };
