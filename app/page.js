@@ -57,7 +57,7 @@ export default function Home() {
           className="hidden md:block mt-4"
         >
           <div className=" flex gap-12 items-center">
-            <div className="flex-auto w-64 bg-red-500 md:h-[500px] relative rounded-md">
+            <div className="flex-auto w-64 md:h-[500px] relative rounded-md">
               <Image
                 src={parseImgUrl(posts.top.image)}
                 alt="big image"

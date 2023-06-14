@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,24 +9,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { redirect, useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@/components/ui/dialog';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { redirect, useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
+import { otherFn } from 'shochu';
 
 const SignupSchema = Yup.object().shape({
   title: Yup.string()
-    .required("Please enter a title")
-    .min(12, "Title at least 12 characters"),
+    .required('Please enter a title')
+    .min(12, 'Title at least 12 characters'),
   description: Yup.string()
-    .required("Please enter description for the post")
-    .min(30, "Please enter description more than 30 characters"),
+    .required('Please enter description for the post')
+    .min(30, 'Please enter description more than 30 characters'),
   content: Yup.string()
-    .required("Please enter content for the post")
-    .min(100, "Please enter content more than 100 characters"),
+    .required('Please enter content for the post')
+    .min(100, 'Please enter content more than 100 characters'),
   image: Yup.string(),
 });
 
@@ -36,7 +37,7 @@ const CreatePost = () => {
   if (typeof localStorage !== 'undefined') {
     token = localStorage.getItem('token');
   }
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [isChecked, setIsChecked] = useState(false);
   // const [status,setStatus] = use
@@ -54,12 +55,12 @@ const CreatePost = () => {
     //   reader.readAsDataURL(file);
     // }
     let formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
     setLoading(true);
     const uploadImage = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}upload`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -75,6 +76,72 @@ const CreatePost = () => {
     setIsChecked(event.target.checked);
     console.log(isChecked);
   };
+
+  const handleOnPredictionContent = async (content) => {
+    const id = toast.loading(
+      'Sending requests to the server and making predictions...',
+      {
+        position: 'top-center',
+      }
+    );
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}post/prediction`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      }
+    );
+    await otherFn.wait(2000);
+
+    const status = await response.json();
+    if (status.code === 1 && status.data === 1) {
+      toast.update(id, {
+        type: toast.TYPE.INFO,
+        render: 'This content might be fake',
+        position: 'top-center',
+        autoClose: 5000,
+        isLoading: false,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+    } else if (status.code === 1 && status.data === 0) {
+      toast.update(id, {
+        type: toast.TYPE.INFO,
+        render: 'This content is real',
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+    } else {
+      toast.update(id, {
+        type: toast.TYPE.ERROR,
+        render: 'We cant defined this content, try again later',
+        position: 'top-center',
+        autoClose: 5000,
+        isLoading: false,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+    }
+  };
+
   return (
     <div className="flex justify-center mb-10">
       <Dialog>
@@ -101,13 +168,13 @@ const CreatePost = () => {
             <DialogDescription>
               <Formik
                 handleChange={() => {
-                  console.log("WTF");
+                  console.log('WTF');
                 }}
                 initialValues={{
-                  title: "",
-                  description: "",
-                  content: "",
-                  image: "",
+                  title: '',
+                  description: '',
+                  content: '',
+                  image: '',
                 }}
                 validationSchema={SignupSchema}
                 onSubmit={async (values) => {
@@ -117,24 +184,23 @@ const CreatePost = () => {
                     const data = await fetch(
                       `${process.env.NEXT_PUBLIC_API_URL}post`,
                       {
-                        method: "POST",
+                        method: 'POST',
                         headers: {
                           Authorization: `Bearer ${token}`,
-                          "Content-Type": "application/json",
+                          'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(values),
                       }
                     );
                     if (data.status === 200) {
                       setTimeout(() => {
-                        toast.success("Success! Post successful.");
+                        toast.success('Success! Post successful.');
                       }, 3000);
                       window.location.reload();
                     } else {
-                
                       setTimeout(() => {
                         toast.error(
-                          "Failed! Post Failed, Please try again later"
+                          'Failed! Post Failed, Please try again later'
                         );
                       }, 3000);
                       window.location.reload();
@@ -155,11 +221,11 @@ const CreatePost = () => {
                       accept="image/*"
                       onChange={handleFileChange}
                     />
-                    {loading && <h3>Your image will display hehe :D ....</h3>}
+                    {/* {loading && <h3>Your image will display hehe :D ....</h3>} */}
                     {image && (
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL}upload/file/${image.filename}`}
-                        className="w-[250px] h-[250px]"
+                        className="w-full h-[250px] object-cover"
                       />
                     )}
                     <label>Title</label>
@@ -191,66 +257,20 @@ const CreatePost = () => {
                     {errors.content && touched.content ? (
                       <div className="text-red-400">{errors.content}</div>
                     ) : null}
-                      {values.content ? (
-                        <div className=" text-center px-2 py-4 bg-green-400 w-1/2"
-                          onClick={async () => {
-                            const response = await fetch(
-                              `${process.env.NEXT_PUBLIC_API_URL}post/prediction`,
-                              {
-                                method: "POST",
-                                headers: {
-                                  "Authorization": `Bearer ${token}`,
-                                  "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({content:values.content})
-                              }
-                            );
-
-                            const status = await response.json();
-                            if(status.code ===1 && status.data === 1){
-                              toast.info('This content might be fake', {
-                                position: "top-center",
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: "light",
-                                });
-                
-                            }
-                            else if (status.code === 1 && status.data ===0){
-                              toast.info('This content is real', {
-                                position: "top-center",
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: "light",
-                                });
-                            }
-                            else{
-                              toast.error('We cant defined this content, try again later', {
-                                position: "top-center",
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: "light",
-                                });
-                            }
-                          }}
-                        >
-                          Prediction content
-                        </div>
-                      ):(
-                        <div className=" disabled text-center px-2 py-4 bg-green-400 w-1/2 opacity-50">Prediction content</div>
-                      )}
+                    {values.content ? (
+                      <div
+                        className=" text-center px-2 py-4 bg-green-400 w-1/2"
+                        onClick={() =>
+                          handleOnPredictionContent(values.content)
+                        }
+                      >
+                        Prediction content
+                      </div>
+                    ) : (
+                      <div className=" disabled text-center px-2 py-4 bg-green-400 w-1/2 opacity-50">
+                        Prediction content
+                      </div>
+                    )}
                     {/* <Field
                       name="image"
                       type="text"
